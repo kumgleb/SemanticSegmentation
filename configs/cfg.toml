@@ -1,0 +1,12 @@
+[UNet]
+encoder_channels = [3, 64, 128, 256, 512]
+decoder_channels = [512, 256, 128, 64]
+n_classes = 3
+retain_dim = true
+out_size = [256, 256]
+
+[ResUNet]
+decoder_channels = [2048, 1024, 512, 256, 64]
+n_classes = 3
+retain_dim = true
+out_size = [224, 224]
