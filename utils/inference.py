@@ -30,6 +30,8 @@ class TrainedModel:
         )
     }
 
+    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+
     def __init__(self, model_name: str):
         self.model_name = model_name
         self.model = self.get_model(model_name)
@@ -37,14 +39,13 @@ class TrainedModel:
         self.original_img_size = None
 
     def get_model(self, model_name: str):
-        device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
         cfg = toml.load('./configs/cfg.toml')[model_name]
-        model = self.models[model_name].model(cfg).to(device)
-        state_dict = model_zoo.load_url(self.models[model_name].url, progress=True, map_location=device)
+        model = self.models[model_name].model(cfg).to(self.device)
+        state_dict = model_zoo.load_url(self.models[model_name].url, progress=True, map_location=self.device)
         model.load_state_dict(state_dict)
         for parameter in model.parameters():
             parameter.requires_grad = False
-        model.to(device)
+        model.to(self.device)
         model.eval()
         return model
 
@@ -59,6 +60,7 @@ class TrainedModel:
         return img
 
     def predict_mask(self, img):
+        img = img.to(self.device)
         self.model.eval()
         with torch.no_grad():
             mask_prd = self.model(img)
